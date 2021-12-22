@@ -1,5 +1,12 @@
-# Free-Valheim-Server-Oracle-ARM-Edition
+# Free-Valheim-Server-Oracle-Cloud-ARM-Edition
 This is a walkthrough of how to get a Valheim server running with Oracle Cloud's new ARM Ampere always free tier.
+
+## Setup Instance in Oracle Cloud
+
+Ubuntu 20.04 Shape
+2 Cores - 12 GB of RAM
+
+Open UDP 2456,2457 in Security List
 
 ## Update Ubuntu
 ```
