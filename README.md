@@ -1,6 +1,12 @@
 # Free-Valheim-Server-Oracle-Cloud-ARM-Edition
 This is a walkthrough of how to get a Valheim server running with Oracle Cloud's new ARM Ampere always free tier.
 
+## References
+
+[Akridge's Guide](https://github.com/akridge/Valheim-Free-Game-Server-Setup-Using-Oracle-Cloud)
+
+[Emmet's Guide for RPI4](https://pimylifeup.com/raspberry-pi-valheim-server/)
+
 ## Setup Instance in Oracle Cloud
 
 Ubuntu 20.04 Shape
