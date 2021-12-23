@@ -7,44 +7,47 @@ Thankfully a lot of work has been put into getting Valheim Server to run on the 
 
 ## References
 
-[Akridge's Guide](https://github.com/akridge/Valheim-Free-Game-Server-Setup-Using-Oracle-Cloud)
+[Akridge's Guide](https://github.com/akridge/Valheim-Free-Game-Server-Setup-Using-Oracle-Cloud) - Article using Oracle Cloud for free using x86_64, using LinuxGSM or AMP as a game server.
 
-[Emmet's Guide for RPI4](https://pimylifeup.com/raspberry-pi-valheim-server/)
+[Emmet's Guide for RPI4](https://pimylifeup.com/raspberry-pi-valheim-server/) - Article on how to host Valheim Server on the RPi4 using Steam.
 
 ## Setup Instance in Oracle Cloud
 
-- Sign up for Oracle Cloud
+- Sign up for [Oracle Cloud](https://www.oracle.com/cloud/free/).
 
-- Create a VM Instance
+- Create a VM Instance.
 
 ![Create Instance](https://github.com/Nyrren/Free-Valheim-Server-Oracle-Cloud-ARM-Edition/blob/main/docs/CreateInstance.jpg)
 
-- Select your OS and your Shape (Ubuntu 20.04, ARM Ampere 2 Cores w/ 12 GB of RAM)
+- Select your OS and your Shape (Ubuntu 20.04, ARM Ampere 2 Cores w/ 12 GB of RAM).
 
 ![Select Shape](https://github.com/Nyrren/Free-Valheim-Server-Oracle-Cloud-ARM-Edition/blob/main/docs/SelectShape.jpg)
 
-- Generate a and save your private Key (alternatively you can generate your own it PuTTYgen, but that is beyond the scope of this tutorial)
+- Generate a and save your private Key (alternatively you can generate your own it PuTTYgen, but that is beyond the scope of this tutorial).
 
 ![Save Key](https://github.com/Nyrren/Free-Valheim-Server-Oracle-Cloud-ARM-Edition/blob/main/docs/SaveKey.jpg)
 
-- Allow transport encryption
+- Allow transport encryption for the boot volume.
+
+![In Transit Encrypt](https://github.com/Nyrren/Free-Valheim-Server-Oracle-Cloud-ARM-Edition/blob/main/docs/InTransitEncrypt.jpg)
+
 - Your instance will start to provision and soon will look like this:
 
 ![Running Instance](https://github.com/Nyrren/Free-Valheim-Server-Oracle-Cloud-ARM-Edition/blob/main/docs/RunningInstance.jpg)
 
-- Open UDP 2456,2457 in Security List for 0.0.0.0/0 (in the Subnet section)
+- Open UDP 2456,2457 in Security List for 0.0.0.0/0 (in the Subnet section), there's a link on the subnet line in the screenshot above.
 
 ![Ingress Rules](https://github.com/Nyrren/Free-Valheim-Server-Oracle-Cloud-ARM-Edition/blob/main/docs/IngressRules.jpg)
 
 ## Login via SSH
 
-- I use PuTTY, you can get it [here](https://www.putty.org/)
+- I use PuTTY, you can get it [here](https://www.putty.org/).
 
-- Make note of your Public IP Address, and attach your Private Key (user is ubuntu by default)
+- Make note of your public IP address (found in your Oracle Cloud Instance info), and [attach](https://docs.oracle.com/en/cloud/paas/goldengate-cloud/connect-to-cloud-win-putty/) your Private Key that you downloaded when the instance was first setup (Oracle Cloud default user will be ```ubuntu```, so use that).
 
 ![Putty SSH](https://github.com/Nyrren/Free-Valheim-Server-Oracle-Cloud-ARM-Edition/blob/main/docs/PuTTySSH.jpg)
 
-- You may get a warning the first time you login with PuTTY, acknowledge it and we should be on our new server
+- You may get a warning the first time you login with PuTTY, acknowledge it and we should be on our new server.
 
 ![Putty SSH](https://github.com/Nyrren/Free-Valheim-Server-Oracle-Cloud-ARM-Edition/blob/main/docs/SSHSession.jpg)
 
@@ -76,17 +79,18 @@ sudo apt install git build-essential cmake
 ```
 
 ### Install [Box86](https://github.com/ptitSeb/box86)
-Clone the latest Box86 repository
+We'll ensure we are in the home directory, then clone the latest Box86 repository.
 ```
+cd ~
 git clone https://github.com/ptitSeb/box86
 ```
-Add the 32bit ARM architecture.
+Then add the 32bit ARM architecture next.
 ```
 sudo dpkg --add-architecture armhf
 sudo apt update
 sudo apt install gcc-arm-linux-gnueabihf libc6:armhf libncurses5:armhf libstdc++6:armhf
 ```
-Compile Box86
+Finally we'll compile Box86.  Yes, we can cmake with the ```-DRPI4ARM64=1``` flag interestingly enough.
 ```
 cd ~/box86
 mkdir build
@@ -103,7 +107,7 @@ Go back to the home directory and clone the latest Box64 repository.
 cd ~
 git clone https://github.com/ptitSeb/box64.git
 ```
-Compile Box64
+Next we'll compile Box64. Again, we can cmake with the ```-DRPI4ARM64=1``` flag.
 ```
 cd ~/box64
 mkdir build
@@ -120,7 +124,7 @@ sudo reboot
 ```
 
 ### Install Steam
-The steam installation is next, first we'll want to create the install directory.
+The Steam installation is next, first we'll want to create the install directory.
 ```
 mkdir /home/ubuntu/steamcmd
 cd /home/ubuntu/steamcmd
@@ -136,41 +140,94 @@ Running steamcmd.sh will complete the installation and put you in the steamcmd s
 quit
 ```
 
+**NOTE:** If you get the following error message: ```Loading Steam API...Failed to init SDL priority manager: SDL not found``` don't fret.  
+
+We have the 64-bit version.  Steam is complaining about the absence of the 32-bit version, but we only need to run ```steamcmd.sh``` to install the Valheim server.  We won't be playing 32-bit games on this server.
+
+
+
 ### Install Valheim Server
-Next is to install the Valheim server components, note that this install will place the install directory in /home/ubuntu/valheim_server.
+Next is to install the Valheim server components, note that this install will place the install directory in ```/home/ubuntu/valheim_server```.
 ```
 ./steamcmd.sh +@sSteamCmdForcePlatformType linux +force_install_dir /home/ubuntu/valheim_server +login anonymous +app_update 896660 validate +quit
 ```
-Before starting the server, modifications are needed to the server_server.sh script.
+Before starting the server, modifications are needed to the ```server_server.sh``` script. I use [Nano](https://www.nano-editor.org/dist/latest/nano.html).
 ```
 nano /home/ubuntu/valheim_server/start_server.sh
 ```
-You'll need to replace the line in the server_server.sh script with the one below, then change the server info to your own <IMPORTANT!>.
+You'll want to replace the line in the server_server.sh script with the one below. 
+
+```<IMPORTANT>``` Change the server info to your own! ```<IMPORTANT>```
 ```
 ./valheim_server.x86_64 -nographics -batchmode -port 2456 -public 0 -name "My Server Name" -world "MyWorldName" -password "MySecretPassword" -savedir "/home/ubuntu/valheim_data"
 ```
+
+From the [Valheim Wiki](https://valheim.fandom.com/wiki/Hosting_Servers) & [Docker Server Notes](https://github.com/lloesche/valheim-server-docker/issues/22):
+
+```-nographics``` When you run this in batch mode, it does not initialize the graphics device. 
+
+```-batchmode``` Run Unity in batch mode. In batch mode, Unity runs command line arguments without the need for human interaction.
+
+```-port``` This is the port that Valheim will connect to the server on.
+
+```-public```  This shows (1) or hides (0) your server from the community server browser.
+
+```-name``` The name of your server as it appears on the in-game community server browser.
+
+```-world``` The name of the Valheim World you wish to host on the server. This is also the name of the world file.
+
+```-password``` The password used to access the Valheim world. Minimum password length is 5 characters
+
+```-savedir``` Overrides the default save path
+
+### Start the Valheim Server
 Navigate to the Valheim Server directory and start the server.  There will be errors, and it may take awhile if it's building a new world for the first time.
 ```
 cd /home/ubuntu/valheim_server/
 ./start_server.sh
 ```
+You'll see the following errors and more, again don't fret.
+```
+Error loading needed lib /home/ubuntu/valheim_server/valheim_server_Data/Managed/UnityEngine.dll.so
+Warning: Cannot dlopen("/home/ubuntu/valheim_server/valheim_server_Data/Managed/UnityEngine.dll.so"/0xa4d19bc0, 101)
+Error loading needed lib /home/ubuntu/valheim_server/valheim_server_Data/Managed/mono/aot-cache/amd64/UnityEngine.dll.so
+Warning: Cannot dlopen("/home/ubuntu/valheim_server/valheim_server_Data/Managed/mono/aot-cache/amd64/UnityEngine.dll.so"/0xa4d19bc0, 101)
+Error loading needed lib /home/ubuntu/valheim_server/valheim_server_Data/Managed/UnityEngine.AIModule.dll.so
+Warning: Cannot dlopen("/home/ubuntu/valheim_server/valheim_server_Data/Managed/UnityEngine.AIModule.dll.so"/0xac9f17f0, 101)
+Error loading needed lib /home/ubuntu/valheim_server/valheim_server_Data/Managed/mono/aot-cache/amd64/UnityEngine.AIModule.dll.so
+Warning: Cannot dlopen("/home/ubuntu/valheim_server/valheim_server_Data/Managed/mono/aot-cache/amd64/UnityEngine.AIModule.dll.so"/0xa3c7d8c0, 101)
+Error loading needed lib /home/ubuntu/valheim_server/valheim_server_Data/Managed/UnityEngine.AndroidJNIModule.dll.so
+Warning: Cannot dlopen("/home/ubuntu/valheim_server/valheim_server_Data/Managed/UnityEngine.AndroidJNIModule.dll.so"/0xac9f17f0, 101)
+Error loading needed lib /home/ubuntu/valheim_server/valheim_server_Data/Managed/mono/aot-cache/amd64/UnityEngine.AndroidJNIModule.dll.so
+Warning: Cannot dlopen("/home/ubuntu/valheim_server/valheim_server_Data/Managed/mono/aot-cache/amd64/UnityEngine.AndroidJNIModule.dll.so"/0xa3c7d8c0, 101)
+...
+```
+But eventually you'll see:
+```
+12/23/2021 03:46:36: Loaded 7384 locations
+
+(Filename: ./Runtime/Export/Debug/Debug.bindings.h Line: 39)
+```
 Once the world is done building, I've had to quit out of the process to save the world for the 1st time.
+
 <kbd>Ctrl</kbd> + <kbd>C</kbd> to terminate and save world
 
-Relaunch the start_server.sh file, there will still be errors but eventually you'll get a message that all objects have been populated.  
+Relaunch the start_server.sh file, there will still be the Unity.dll errors but eventually you'll get a message that all locations have been loaded.
 ```
 ./start_server.sh
 ```
 ### Launch Valheim and login!!!
-Try to login with your public IP address and password.
+Try to login with your public IP address and password. ```I have arrived!!!```
 
 
 ## Setup Valheim Service
-It's possible to have Valheim run on startup, instead of launching the shell script everytime.  To do this nana 
+It's possible to have Valheim run on startup, instead of launching the ```start_server.sh``` everytime.  We'll use ```nano``` again to create the file.
 ```
 sudo nano /etc/systemd/system/valheim.service
 ```
-Paste the following contents in the file.  Change the parameters to your own server params!
+Paste the following contents in the file.  
+
+```<IMPORTANT>```Change the parameters to your own server params!```<IMPORTANT>```
 ```
 [Unit]
 Description=Valheim Dedicated Server
