@@ -21,6 +21,7 @@ Thankfully a lot of work has been put into getting Valheim Server to run on the 
 
 - Select your OS and your Shape (Ubuntu 20.04, ARM Ampere 2 Cores w/ 12 GB of RAM).
 
+![Ubuntu](https://github.com/Nyrren/Free-Valheim-Server-Oracle-Cloud-ARM-Edition/blob/main/docs/Ubuntu.jpg)
 ![Select Shape](https://github.com/Nyrren/Free-Valheim-Server-Oracle-Cloud-ARM-Edition/blob/main/docs/SelectShape.jpg)
 
 - Generate a and save your private Key (alternatively you can generate your own it PuTTYgen, but that is beyond the scope of this tutorial).
