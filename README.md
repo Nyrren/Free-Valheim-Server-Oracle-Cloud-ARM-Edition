@@ -5,6 +5,8 @@ Using Oracle Cloud's Ampere instances give us access of up to 4 cores and 24 GB[
 
 Thankfully a lot of work has been put into getting Valheim Server to run on the RPi4.  We'll use some of that methodology to get our hosted Ubuntu solution running.
 
+Note: If you are signing up for a free acount the first time, the server will get wiped after the 30-day trail is over.  After that you can re-create on the free-tier without further disruptions.
+
 ## References
 
 [Akridge's Guide](https://github.com/akridge/Valheim-Free-Game-Server-Setup-Using-Oracle-Cloud) - Article using Oracle Cloud for free using x86_64, using LinuxGSM or AMP as a game server.
@@ -143,7 +145,7 @@ quit
 
 **NOTE:** If you get the following error message: ```Loading Steam API...Failed to init SDL priority manager: SDL not found``` don't fret.  
 
-We have the 64-bit version.  Steam is complaining about the absence of the 32-bit version, but we only need to run ```steamcmd.sh``` to install the Valheim server.  We won't be playing 32-bit games on this server.
+Steam is complaining about the absence of the 32-bit version of ```libsdl2-2.0-0``` but we have the 64-bit version. We only need to run ```steamcmd.sh``` to install the Valheim server.  We won't be playing 32-bit games on this server.
 
 
 
@@ -203,21 +205,30 @@ Error loading needed lib /home/ubuntu/valheim_server/valheim_server_Data/Managed
 Warning: Cannot dlopen("/home/ubuntu/valheim_server/valheim_server_Data/Managed/mono/aot-cache/amd64/UnityEngine.AndroidJNIModule.dll.so"/0xa3c7d8c0, 101)
 ...
 ```
-But eventually you'll see:
+But eventually you'll see something indicating the world has generated (up to 20 mins for the first build):
 ```
-12/23/2021 03:46:36: Loaded 7384 locations
+12/23/2021 03:46:36: Done generating locations, duration:108663.219 ms
 
 (Filename: ./Runtime/Export/Debug/Debug.bindings.h Line: 39)
 ```
-Once the world is done building, I've had to quit out of the process to save the world for the 1st time.
+Once the world is done building, I've had to terminate the process to save the world for the 1st time.
 
-<kbd>Ctrl</kbd> + <kbd>C</kbd> to terminate and save world
+<kbd>Ctrl</kbd> + <kbd>C</kbd> to terminate and save your world.
 
-Relaunch the start_server.sh file, there will still be the Unity.dll errors but eventually you'll get a message that all locations have been loaded.
+Relaunch the start_server.sh file.
 ```
 ./start_server.sh
 ```
-### Launch Valheim and login!!!
+
+There will still be the Unity.dll errors but eventually you'll get a message that all locations have been loaded. Subsequent launches should look like:
+```
+01/12/2022 00:49:11: Loaded 7353 locations
+
+(Filename: ./Runtime/Export/Debug/Debug.bindings.h Line: 39)
+```
+You're done! Congrats!
+
+## Launch Valheim and login!!!
 Try to login with your public IP address and password. ```I have arrived!!!```
 
 
