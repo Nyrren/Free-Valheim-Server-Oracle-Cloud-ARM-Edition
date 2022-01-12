@@ -187,7 +187,7 @@ Navigate to the Valheim Server directory and start the server.  There will be er
 cd /home/ubuntu/valheim_server/
 ./start_server.sh
 ```
-You'll see the following errors and more, again don't fret.
+You'll see the following errors and more, again don't fret.  For Unity applications, Box64 uses the Mono Runtime, I believe the .dll.so files that are missing are used for ahead of time (AoT) compilation.  The mode that it'll default to is just in time (JiT) compilation, so these particular errors shouldn't ruin your experience.
 ```
 Error loading needed lib /home/ubuntu/valheim_server/valheim_server_Data/Managed/UnityEngine.dll.so
 Warning: Cannot dlopen("/home/ubuntu/valheim_server/valheim_server_Data/Managed/UnityEngine.dll.so"/0xa4d19bc0, 101)
